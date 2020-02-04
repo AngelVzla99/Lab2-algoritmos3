@@ -12,7 +12,7 @@ class Hamilton{
 
         Graph G = new Graph();
         G.buildGraph( args[0] );
-
+        G.printGraph();
 
     }
 }
