@@ -14,5 +14,13 @@ class Hamilton{
         G.buildGraph( args[0] );
         G.printGraph();
 
+        boolean visit[] = new boolean[G.getN()]; // Arreglo de los visitados inicialisado en false
+        ArrayList<Integer> camino = new ArrayList<Integer>(); // En esta lista se guardara el camino    
+
+        // Hago DFS comenzando en c/u de los nodos
+        //for(int i=0; i<G.getN() && !G.getFind(); i++) G.DFS(i,camino,visit);
+
+        G.BFS(1,visit);
+
     }
 }
