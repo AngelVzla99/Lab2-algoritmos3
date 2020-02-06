@@ -12,15 +12,28 @@ class Hamilton{
 
         Graph G = new Graph();
         G.buildGraph( args[0] );
-        G.printGraph();
+        //G.printGraph();
 
         boolean visit[] = new boolean[G.getN()]; // Arreglo de los visitados inicialisado en false
         ArrayList<Integer> camino = new ArrayList<Integer>(); // En esta lista se guardara el camino    
 
-        // Hago DFS comenzando en c/u de los nodos
-        //for(int i=0; i<G.getN() && !G.getFind(); i++) G.DFS(i,camino,visit);
-
-        G.BFS(1,visit);
-
+        if( args[1].equals("DFS") ){
+            // Hago DFS comenzando en c/u de los nodos
+            for(int i=0; i<G.getN() && !G.getFind(); i++){
+                System.out.println("Recorrido desde "+i+":");
+                G.DFS(i,camino,visit);
+                if( !G.getFind() ) G.printNoValid(i);
+            }
+            if( !G.getFind() ) System.out.println("No existe camino");
+        }else if( args[1].equals("BFS") ){
+            // Hago BFS comenzando en c/u de los nodos
+            for(int i=0; i<G.getN() && !G.getFind(); i++){
+                System.out.println("Recorrido desde "+i+":");
+                G.BFS(i,visit);
+            }
+            if( !G.getFind() ) System.out.println("No existe camino");    
+        }else{
+            System.out.println(args[1]+" no es un posible recorrido");
+        }
     }
 }

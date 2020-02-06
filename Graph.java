@@ -68,53 +68,80 @@ class Graph{
     }
 
     public void BFS(int n, boolean visit[]){
-        // Creamos una cola y un arreglo, donde la posicion i tiene 
-        // el camino mas largo que termina en i
+        // Creamos una cola y un arreglo de visitados
         LinkedList<Integer> queue = new LinkedList<Integer>(); 
-        ArrayList<ArrayList<Integer> > camino = new ArrayList<ArrayList<Integer> >(this.N);
-        for (int i = 0; i<this.N; i++) camino.add(new ArrayList<Integer>()); 
-  
-        // Marcar el actual nodo como visidato y colocarlo en la cola
-        visit[n]=true;
-        queue.add(n);
-  
-        while(queue.size() != 0) { 
+        boolean visited[] = new boolean[this.N]; 
+        ArrayList<Integer> camino = new ArrayList<Integer>();
+        boolean ans = true;
+        int lvl = 1;
+
+        // Marcamos como visitado el nodo de entrada
+        visited[n]=true; 
+        queue.add(n); 
+        
+        while (queue.size() != 0){ 
             int v = queue.poll(); 
-            System.out.print(v+" "); 
-            LinkedList<Integer> caminoV = new LinkedList<Integer>( camino.get(v) ); 
+            camino.add(v);
+            int cont=0;
 
-            System.out.println("Elemento de la pila "+v);
-
-            for( int w: adj.get(v) ){
-                System.out.println("-----hijo "+w);
-                if( !visit[w] ){
-                    visit[w] = true;
+            for(int w: this.adj.get(v)){ 
+                for(int i=0; i<lvl-1; i++) System.out.print("\t");
+                if (!visited[w]){ 
+                    System.out.println(v + "-" + w );
+                    visited[w] = true; 
                     queue.add(w); 
-                    // camino[w] = camino[v] U <v,w>
-                    LinkedList<Integer> caminoTemp = new LinkedList<Integer>( caminoV ); 
-                    caminoTemp.add(w); // Camino que va de v hasta w
-
-                    this.conectar(camino, caminoTemp);
-                }else{ // (v,w) genera un ciclo
-                    LinkedList<Integer> caminoTemp = new LinkedList<Integer>( camino.get(v) ); 
-                    LinkedList<Integer> caminoTemp2 = new LinkedList<Integer>( camino.get(w) ); 
-                    Collections.reverse(caminoTemp2);
-                    for(int z: caminoTemp2) caminoTemp.add(z);
-
-                    if(caminoTemp.size()>0) this.conectar(camino, caminoTemp);
+                    cont+=1;
+                }else{
+                    System.out.println(v + "-" + w + " ya visitado");
                 }
-            }
-        }
+            } 
+            if( cont>1 ) ans = false;
+            lvl += 1;
+        } 
 
-        // Print caminos
-        for(int i=0; i<this.N; i++){
-            System.out.print(i+" => ");
-            for(int v: camino.get(i)) System.out.print(v+" ");
+        if( ans ){
+            System.out.print("Camino encontrado: ");
+            for(int i=0; i<camino.size(); i++){
+                int v = camino.get(i);
+                if( i<camino.size()-1 ) System.out.print( v + "-" );
+                else System.out.print( v );
+            }
             System.out.println();
+            System.out.println("El camino tiene "+ camino.size() + " vertines");
+            this.find = true;
         }
     }
 
     //------------------------------------------
+
+    public boolean printDFS(int n, boolean visit[], int lvl, ArrayList<Integer> guia, int prev){
+        if( lvl == this.N ) return true;
+        visit[n] = true;
+        //System.out.println("Estoy en " + n + " | guia = "+ guia.get(lvl-2));
+        for(int v: adj.get(n)) if(v!=prev){
+            for(int i=0; i<lvl-1; i++) System.out.print("\t");
+            if( guia.size() == 0 ){ // Si no hay guia (no existe camino hamiltoneano)
+                if( !visit[v]){
+                    System.out.println(n + "-" + v);
+                    return this.printDFS(v, visit, lvl+1, guia, n);
+                }else{
+                    System.out.println(n + "-" + v + " ya visitado");
+                }
+            }else{              // Hay guia, quiero imprimir uno hamiltoneano
+                if( visit[v]){
+                    System.out.println(n + "-" + v + " ya visitado");
+                }else if( !visit[v] && v != guia.get(lvl) ){
+                    System.out.println(n + "-" + v + " no conviene");
+                }else{
+                    System.out.println(n + "-" + v);
+                    return this.printDFS(v, visit, lvl+1, guia, n);
+                }
+            }
+        }
+        return true;
+    }
+
+    //--------------------------------------------
 
     public Integer getN(){ return this.N; }
     public boolean getFind(){ return this.find; }
@@ -148,6 +175,10 @@ class Graph{
     }
 
     public void printPath(ArrayList<Integer> camino){
+        // Se imprime de la manera indicada en el PDF
+        boolean visit[] = new boolean[this.N]; 
+        boolean temp = printDFS(camino.get(0), visit, 1, camino, camino.get(0));
+
         System.out.print("Camino encontrado: ");
         for(int i=0; i<camino.size(); i++){
             int v = camino.get(i);
@@ -156,6 +187,12 @@ class Graph{
         }
         System.out.println();
         System.out.println("El camino tiene "+ camino.size() + " vertines");
+    }
+
+    public void printNoValid(int nodo){
+        boolean visit[] = new boolean[this.N]; 
+        ArrayList<Integer> camino = new ArrayList<Integer>(); 
+        boolean temp = printDFS(nodo, visit, 1, camino, -1);
     }
 
     public void printGraph(){
